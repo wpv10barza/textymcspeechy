@@ -1,0 +1,48 @@
+name: assemble-migration
+on:
+  push:
+    branches: [import/drive-2026-09-29]
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct verified Drive-equivalent large scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream_commit='413a6edc7ca11cc1aa05eea2f7c5e7db3b834c6a'
+          curl -fsSL "https://raw.githubusercontent.com/domesticatedviking/TextyMcSpeechy/${upstream_commit}/tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh" -o tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh
+          curl -fsSL "https://raw.githubusercontent.com/domesticatedviking/TextyMcSpeechy/${upstream_commit}/tts_dojo/DOJO_CONTENTS/scripts/train.sh" -o tts_dojo/DOJO_CONTENTS/scripts/train.sh
+          printf '%s  %s\n' '7741b7714898e1c47ec00adaae81f0999011d0af2296ba1425e8b0a8f1c91e13' 'tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh' | sha256sum -c -
+          printf '%s  %s\n' '90a7684142faad2fbe7ee6cf175412406a60b984787c6e6cdf60f23be5f6ce49' 'tts_dojo/DOJO_CONTENTS/scripts/train.sh' | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          expected = {
+              'tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh': 'e337c7418f9481afd18feadfeb27688b89757a28',
+              'tts_dojo/DOJO_CONTENTS/scripts/train.sh': '66ad9740afaf93c30a5570953e2a35a220b9e474',
+          }
+          for path, want in expected.items():
+              data = Path(path).read_bytes()
+              got = hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+              if got != want:
+                  raise SystemExit(f'{path}: git blob mismatch {got} != {want}')
+              print(f'{path}: git blob verified {got}')
+          PY
+          bash -n tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh
+          bash -n tts_dojo/DOJO_CONTENTS/scripts/train.sh
+      - name: Commit verified files and remove temporary assembler
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/assemble-migration.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tts_dojo/DOJO_CONTENTS/scripts/train.sh tts_dojo/DOJO_CONTENTS/scripts/utils/checkpoint_grabber.sh .github/workflows/assemble-migration.yml
+          git commit -m 'Reconstruct exact Drive-equivalent large scripts'
+          git push
