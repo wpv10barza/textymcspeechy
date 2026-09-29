@@ -1,0 +1,43 @@
+name: finalize-migration-manifest
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/finalize-migration-manifest.yml']
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Finalize migration manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('MIGRATION_MANIFEST.md')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+              '- github_branch: `import/drive-2026-09-29`': '- github_branch: `main`',
+              '- github_commit: pendiente hasta verificación final': '- github_commit: `ed700e51387e9334822a00104171904e6435fae0`',
+              '- verification_status: `PENDING_GITHUB_CI`': '- verification_status: `VERIFIED`',
+              '- verified_at: pendiente': '- verified_at: `2026-09-29`',
+          }
+          for old, new in replacements.items():
+              if old not in s:
+                  raise SystemExit(f'Expected manifest field not found: {old}')
+              s = s.replace(old, new, 1)
+          section = '''\n\n## Verificación final\n\n- import_head: `22bd900a533536a40fc89ad64835531d2c90e9fd`\n- merge_commit: `ed700e51387e9334822a00104171904e6435fae0`\n- pull_request: `#1`\n- PR CI: `success` (run `36605216457`)\n- post-merge CI: `success` (run `36605287863`)\n- final_tree_checked: `TRUE`\n- large_file_git_blob_train: `66ad9740afaf93c30a5570953e2a35a220b9e474`\n- large_file_git_blob_checkpoint_grabber: `e337c7418f9481afd18feadfeb27688b89757a28`\n- deletion_allowed: `FALSE`\n- drive_status: `CONSERVADO`\n- deletion_reason: El origen contiene datasets, audio, checkpoints y modelos deliberadamente excluidos del repositorio canónico; por tanto la carpeta completa de Drive no es un respaldo redundante eliminable.\n'''
+          if '## Verificación final' not in s:
+              s += section
+          p.write_text(s, encoding='utf-8')
+          PY
+          rm .github/workflows/finalize-migration-manifest.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add MIGRATION_MANIFEST.md .github/workflows/finalize-migration-manifest.yml
+          git commit -m 'Finalize TextyMcSpeechy migration manifest'
+          git push
