@@ -4,11 +4,11 @@
 - source_folder: `Codigos_Antes_Exportados/TextyMcSpeechy`
 - project_family: `TextyMcSpeechy`
 - github_repository: `wpv10barza/textymcspeechy`
-- github_branch: `import/drive-2026-09-29`
-- github_commit: pendiente hasta verificación final
+- github_branch: `main`
+- github_commit: `ed700e51387e9334822a00104171904e6435fae0`
 - files_migrated: 41
-- verification_status: `PENDING_GITHUB_CI`
-- verified_at: pendiente
+- verification_status: `VERIFIED`
+- verified_at: `2026-09-29`
 
 ## Exclusiones deliberadas
 
@@ -67,3 +67,18 @@ Los scripts `.sh` del Drive usan CRLF. La copia canónica se normaliza a LF para
 | `tts_dojo/ESPEAK_RULES/container_apply_custom_rules.sh` | `03ba0846186754c6888e4d508a78400619620da4acdcd47ac0427699f8074855` | `7f453b71bfbe77170fa188529c9a1c892cffce670e98ea1870780e83701e536f` |
 | `tts_dojo/TTS_dojo_guide.md` | `77f63f95af7241d08306e8f57dac783cc13bb6722888efa05d5b77816d116104` | `77f63f95af7241d08306e8f57dac783cc13bb6722888efa05d5b77816d116104` |
 | `tts_dojo/newdojo.sh` | `ea2682810cafc85049d9a00006f734100b43c558fa7053c52b5489e9924fca8d` | `5d72635cb17b0cf9296f8f469022a15d5e91283bfae3067365b76d2bf8a1455b` |
+
+
+## Verificación final
+
+- import_head: `22bd900a533536a40fc89ad64835531d2c90e9fd`
+- merge_commit: `ed700e51387e9334822a00104171904e6435fae0`
+- pull_request: `#1`
+- PR CI: `success` (run `36605216457`)
+- post-merge CI: `success` (run `36605287863`)
+- final_tree_checked: `TRUE`
+- large_file_git_blob_train: `66ad9740afaf93c30a5570953e2a35a220b9e474`
+- large_file_git_blob_checkpoint_grabber: `e337c7418f9481afd18feadfeb27688b89757a28`
+- deletion_allowed: `FALSE`
+- drive_status: `CONSERVADO`
+- deletion_reason: El origen contiene datasets, audio, checkpoints y modelos deliberadamente excluidos del repositorio canónico; por tanto la carpeta completa de Drive no es un respaldo redundante eliminable.
