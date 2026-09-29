@@ -402,7 +402,7 @@ main_loop() {
                 "t") toggle_checkpoint_saving ;;
                 "s") save_checkpoint ;;
                 "i") increase_interval ;;
-                "d") decrease_interval ;; 
+                "d") decrease_interval ;;
                 *) ;;  # Ignore other keys
             esac
         fi
@@ -467,3 +467,6 @@ show_training_dir_created_message
 inotify_function >"/tmp/INOTIFY.txt" &
 
 main_loop
+
+
+
